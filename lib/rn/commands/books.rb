@@ -1,3 +1,4 @@
+require 'rn/paths'
 module RN
   module Commands
     module Books
@@ -12,7 +13,15 @@ module RN
         ]
 
         def call(name:, **)
-          warn "TODO: Implementar creación del cuaderno de notas con nombre '#{name}'.\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          if name == "Cuaderno global"
+            puts "No se puede crear este directorio porque ya existe"
+            return
+          end
+          if !Dir.exits?(name)
+            Dir.mkdir(File.join(Paths.getPath, name), 0700)
+          else
+          puts "El nombre del directorio ya existe, por favor ingrese otro."
+          end
         end
       end
 
@@ -30,19 +39,24 @@ module RN
 
         def call(name: nil, **options)
           global = options[:global]
+          
+
           warn "TODO: Implementar borrado del cuaderno de notas con nombre '#{name}' (global=#{global}).\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
         end
       end
 
       class List < Dry::CLI::Command
         desc 'List books'
-
+        require 'terminal-table'
         example [
           '          # Lists every available book'
         ]
 
         def call(*)
-          warn "TODO: Implementar listado de los cuadernos de notas.\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          table = Terminal::Table.new :headings => ['Directorios'], :rows => rows
+          Dir.foreach(Paths.getPath) do |directory|
+            t.add_row [directory]
+          end
         end
       end
 
@@ -59,7 +73,8 @@ module RN
         ]
 
         def call(old_name:, new_name:, **)
-          warn "TODO: Implementar renombrado del cuaderno de notas con nombre '#{old_name}' para que pase a llamarse '#{new_name}'.\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          #Faltaria hacer algunas validaciones
+          File.rename(old_name,new_name)
         end
       end
     end
