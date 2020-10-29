@@ -1,3 +1,4 @@
+require 'rn/paths'
 module RN
   module Commands
     module Notes
@@ -15,7 +16,19 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          warn "TODO: Implementar creación de la nota con título '#{title}' (en el libro '#{book}').\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          if book == "" 
+            note=Paths.get_globalPath
+          else
+            note=File.join(Paths.get_rootPath,book)
+          end
+          note=File.join(note,title + ".rn")
+          if !File.exist?(note)
+            File.new(note,"w+")
+            puts "La nota se creo exitosamente"
+          else
+            puts "El nombre de la nota ya existe"
+          end
+          TTY::Editor.open(note)
         end
       end
 
@@ -51,7 +64,17 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          warn "TODO: Implementar modificación de la nota con título '#{title}' (del libro '#{book}').\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          if book == "" 
+            note=Paths.get_globalPath
+          else
+            note=File.join(Paths.get_rootPath,book)
+          end
+          note=File.join(note,title)
+          puts File.file?(note)
+          if File.exist?(note)
+            puts note
+            TTY::Editor.open(note)
+          end
         end
       end
 

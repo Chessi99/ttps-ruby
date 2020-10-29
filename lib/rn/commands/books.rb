@@ -17,8 +17,8 @@ module RN
             puts "No se puede crear este directorio porque ya existe"
             return
           end
-          if !Dir.exits?(name)
-            Dir.mkdir(File.join(Paths.getPath, name), 0700)
+          if !Dir.exist?(File.join(Paths.get_rootPath, name))
+            Dir.mkdir(File.join(Paths.get_rootPath, name), 0700)
           else
           puts "El nombre del directorio ya existe, por favor ingrese otro."
           end
@@ -39,24 +39,34 @@ module RN
 
         def call(name: nil, **options)
           global = options[:global]
-          
-
-          warn "TODO: Implementar borrado del cuaderno de notas con nombre '#{name}' (global=#{global}).\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          if name == "Cuaderno global"
+            puts "No se puede eliminar este directorio"
+            return
+          end
+          directory_path=File.join(Paths.get_rootPath, name)
+          if Dir.exist?(directory_path)
+            Dir.foreach(directory_path) do |file|
+              if !file == "." || !file == ".."
+                File.delete(file) 
+              end
+            end
+            Dir.delete(directory_path)
+          end
         end
       end
 
       class List < Dry::CLI::Command
         desc 'List books'
-        require 'terminal-table'
+        #require 'terminal-table'
         example [
           '          # Lists every available book'
         ]
 
         def call(*)
-          table = Terminal::Table.new :headings => ['Directorios'], :rows => rows
-          Dir.foreach(Paths.getPath) do |directory|
-            t.add_row [directory]
-          end
+          #table = Terminal::Table.new :headings => ['Directorios'], :rows => rows
+          #Dir.foreach(Paths.getPath) do |directory|
+            #t.add_row [directory]
+         # end
         end
       end
 
@@ -73,8 +83,14 @@ module RN
         ]
 
         def call(old_name:, new_name:, **)
-          #Faltaria hacer algunas validaciones
-          File.rename(old_name,new_name)
+          directory_path=File.join(Paths.get_rootPath, old_name)
+          regex=/[*?!|<>.|\/|\|\\|]+/
+          puts (regex.match(new_name)).inspect
+          puts old_name
+          puts new_name
+          if Dir.exist?(directory_path) && regex.match(new_name)
+            File.rename(old_name,new_name)
+          end
         end
       end
     end
