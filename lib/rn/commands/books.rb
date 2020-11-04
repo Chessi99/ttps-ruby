@@ -1,4 +1,5 @@
 require 'rn/paths'
+require 'terminal-table'
 module RN
   module Commands
     module Books
@@ -17,8 +18,13 @@ module RN
             puts "No se puede crear este directorio porque ya existe"
             return
           end
+          regex=/[*?!|<>.|\/|\|\\|]+/
           if !Dir.exist?(File.join(Paths.get_rootPath, name))
-            Dir.mkdir(File.join(Paths.get_rootPath, name), 0700)
+            if !regex.match(name)
+              Dir.mkdir(File.join(Paths.get_rootPath, name), 0700)
+            else
+              puts "El nombre del directorio es incorrecto"
+            end
           else
           puts "El nombre del directorio ya existe, por favor ingrese otro."
           end
@@ -57,16 +63,19 @@ module RN
 
       class List < Dry::CLI::Command
         desc 'List books'
-        #require 'terminal-table'
         example [
           '          # Lists every available book'
         ]
 
         def call(*)
-          #table = Terminal::Table.new :headings => ['Directorios'], :rows => rows
-          #Dir.foreach(Paths.getPath) do |directory|
-            #t.add_row [directory]
-         # end
+          table = Terminal::Table.new :headings => ['Directorios']
+          Dir.foreach(Paths.get_rootPath) do |directory|
+            if !directory == "." || !directory == ".."
+              next
+            end
+            table.add_row [directory]
+          end
+          puts table
         end
       end
 
@@ -84,12 +93,16 @@ module RN
 
         def call(old_name:, new_name:, **)
           directory_path=File.join(Paths.get_rootPath, old_name)
+          directory_path2=File.join(Paths.get_rootPath, new_name)
           regex=/[*?!|<>.|\/|\|\\|]+/
-          puts (regex.match(new_name)).inspect
-          puts old_name
-          puts new_name
-          if Dir.exist?(directory_path) && regex.match(new_name)
-            File.rename(old_name,new_name)
+          if Dir.exist?(directory_path) 
+            if !regex.match(new_name)
+              File.rename(directory_path,directory_path2)
+            else
+              puts "El nombre del nuevo libro es incorrecto"
+            end
+          else
+              puts "El directorio buscado no existe"
           end
         end
       end

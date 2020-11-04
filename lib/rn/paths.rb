@@ -14,6 +14,7 @@ class Paths
         return @@path
     end
     def self.get_globalPath
-        return File.join(@@path,"Cuaderno global")
+        return File.join(@@path,"Cuaderno Global")
     end
+
 end

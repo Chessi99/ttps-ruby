@@ -1,4 +1,5 @@
 require 'rn/paths'
+require 'terminal-table'
 module RN
   module Commands
     module Notes
@@ -16,7 +17,7 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          if book == "" 
+          if book.nil? 
             note=Paths.get_globalPath
           else
             note=File.join(Paths.get_rootPath,book)
@@ -28,7 +29,6 @@ module RN
           else
             puts "El nombre de la nota ya existe"
           end
-          TTY::Editor.open(note)
         end
       end
 
@@ -46,7 +46,18 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          warn "TODO: Implementar borrado de la nota con título '#{title}' (del libro '#{book}').\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          if book.nil? 
+            note=Paths.get_globalPath
+          else
+            note=File.join(Paths.get_rootPath,book)
+          end
+          note=File.join(note,title)
+          if !File.exist?(note)
+            File.delete(note)
+            puts "La nota se elimino exitosamente"
+          else
+            puts "El nombre de la nota no existe"
+          end
         end
       end
 
@@ -64,15 +75,14 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          if book == "" 
+          if book.nil? 
             note=Paths.get_globalPath
           else
             note=File.join(Paths.get_rootPath,book)
           end
           note=File.join(note,title)
-          puts File.file?(note)
+          puts "Agregar la extension .rn para la edicion de una nota"
           if File.exist?(note)
-            puts note
             TTY::Editor.open(note)
           end
         end
@@ -93,11 +103,19 @@ module RN
 
         def call(old_title:, new_title:, **options)
           book = options[:book]
-          warn "TODO: Implementar cambio del título de la nota con título '#{old_title}' hacia '#{new_title}' (del libro '#{book}').\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          if book.nil?
+            note=Paths.get_globalPath
+          else
+            note=File.join(Paths.get_rootPath,book)
+          end
+          old_note=File.join(note,old_title)
+          new_note=File.join(note,new_title)
+          if File.exist?(note)
+            File.rename(old_note,new_note)
+          end
         end
       end
-
-      class List < Dry::CLI::Command
+      class List < Dry::CLI::Command #FALTA HACER EL LIST
         desc 'List notes'
 
         option :book, type: :string, desc: 'Book'
@@ -113,7 +131,23 @@ module RN
         def call(**options)
           book = options[:book]
           global = options[:global]
-          warn "TODO: Implementar listado de las notas del libro '#{book}' (global=#{global}).\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          if global
+            note=Paths.get_globalPath
+            directorios="Directorio del Cuaderno Global:"
+          elsif book
+            note=File.join(Paths.get_rootPath,book)
+            directorios="Directorio '#{book}':"
+          else
+            note=File.join(Paths.get_rootPath)
+            directorios="Todos los directorios:"
+          end
+          table = Terminal::Table.new :title => "#{directorios}'", :headings => ['Notas']
+          Dir.foreach(note) do |directory|
+            Dir.foreach(directory) do |file|
+              table.add_row [file]
+            end
+          end
+          puts table
         end
       end
 
@@ -131,9 +165,30 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          warn "TODO: Implementar vista de la nota con título '#{title}' (del libro '#{book}').\nPodés comenzar a hacerlo en #{__FILE__}:#{__LINE__}."
+          if !book.nil? and !book.empty
+            note=Paths.get_globalPath
+          else
+            note=File.join(Paths.get_rootPath,book)
+          end
+          note=File.join(note,title)
+          if File.exist?(note)
+            if File.empty?(note)
+              table = Terminal::Table.new do |t|
+                t.title = title
+                File.open(path).each do |line|
+                  t.add_row [line] 
+                end
+              end
+            else
+              puts "La nota esta vacia"
+            end
+          else
+              puts "La nota no existe"
+          end
         end
       end
+
     end
   end
 end
+
