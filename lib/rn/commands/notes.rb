@@ -23,11 +23,16 @@ module RN
             note=File.join(Paths.get_rootPath,book)
           end
           note=File.join(note,title + ".rn")
-          if !File.exist?(note)
-            File.new(note,"w+")
-            puts "La nota se creo exitosamente"
+          regex=/[*?!|<>.|\/|\|\\|]+/
+          if !regex.match(title)
+            if !File.exist?(note)
+              File.new(note,"w+")
+              puts "La nota se creo exitosamente"
+            else
+              puts "El nombre de la nota ya existe"
+            end
           else
-            puts "El nombre de la nota ya existe"
+            puts "El nombre de la nota es incorrecto"
           end
         end
       end
@@ -81,7 +86,6 @@ module RN
             note=File.join(Paths.get_rootPath,book)
           end
           note=File.join(note,title)
-          puts "Agregar la extension .rn para la edicion de una nota"
           if File.exist?(note)
             TTY::Editor.open(note)
           end
@@ -110,12 +114,17 @@ module RN
           end
           old_note=File.join(note,old_title)
           new_note=File.join(note,new_title)
-          if File.exist?(note)
-            File.rename(old_note,new_note)
+          regex=/[*?!|<>.|\/|\|\\|]+/
+          if !regex.match(new_name)
+            if File.exist?(old_note)
+              File.rename(old_note,new_note)
+            end
+          else
+            puts "El nombre nuevo es incorrecto"
           end
         end
       end
-      class List < Dry::CLI::Command #FALTA HACER EL LIST
+      class List < Dry::CLI::Command 
         desc 'List notes'
 
         option :book, type: :string, desc: 'Book'
@@ -131,21 +140,16 @@ module RN
         def call(**options)
           book = options[:book]
           global = options[:global]
+          table = Terminal::Table.new :title => "Notas"
           if global
             note=Paths.get_globalPath
-            directorios="Directorio del Cuaderno Global:"
+            Dir.each_child( note ) {| file | table.add_row [file] }
           elsif book
             note=File.join(Paths.get_rootPath,book)
-            directorios="Directorio '#{book}':"
+            Dir.each_child( note ) {| file | table.add_row [file]}
           else
             note=File.join(Paths.get_rootPath)
-            directorios="Todos los directorios:"
-          end
-          table = Terminal::Table.new :title => "#{directorios}'", :headings => ['Notas']
-          Dir.foreach(note) do |directory|
-            Dir.foreach(directory) do |file|
-              table.add_row [file]
-            end
+            Dir.each_child( note ) {| directoryname | Dir.each_child(File.join(note, directoryname)) {| file | table.add_row [file] }  unless directoryname.include? "."}
           end
           puts table
         end

@@ -70,10 +70,10 @@ module RN
         def call(*)
           table = Terminal::Table.new :headings => ['Directorios']
           Dir.foreach(Paths.get_rootPath) do |directory|
-            if !directory == "." || !directory == ".."
-              next
+            if directory 
+              table.add_row [directory] unless directory.include?(".")
             end
-            table.add_row [directory]
+            
           end
           puts table
         end
