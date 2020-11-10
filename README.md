@@ -109,3 +109,21 @@ puede requerir algún trabajo adicional de tu parte.
   * `lib/rn/version.rb` define la versión de la herramienta, utilizando [SemVer](https://semver.org/lang/es/).
 * `bin/`: directorio donde reside cualquier archivo ejecutable, siendo el más notorio `rn`
   que se utiliza como punto de entrada para el uso de la herramienta.
+
+### Decisiones del proyecto
+
+En el procedimiento del proyecto me fui topando con diferentes trabas, las cuales tuve que 
+tomar alguna decision de diseño de la estructura general de todo el proyecto. Lo primero
+que hice para facilitarme mas las cosas fue hacer un archivo llamado "paths.rb" el cual
+posee dos metodos de clases los cuales son:
+* get_rootPath: lo que hace este metodo es retornarte el path del ".my_rns"
+* get_globalPath: lo que hace este metodo es retornarte el path del cuaderno global
+Esto lo hice ya que se debia usar en varios lugares. 
+
+Hago uso de la gema TTY::EDITOR para que sea mas interactiva a la hora de que el usuario
+eliga con que editor abrir la nota que el quiere editar y la otra gema que 
+use fue terminal-table esta gema la utilice para poder listar los directorios, las notas
+y mostrar lo que contiene una nota.
+
+Por ultimo use expresiones regulares para poder restringir los nombres de las notas como
+el de los directorios para que no se creen con caracteres especiales.
