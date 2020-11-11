@@ -56,8 +56,8 @@ module RN
           else
             note=File.join(Paths.get_rootPath,book)
           end
-          note=File.join(note,title)
-          if !File.exist?(note)
+          note=File.join(note,title +".rn")
+          if File.exist?(note)
             File.delete(note)
             puts "La nota se elimino exitosamente"
           else
@@ -85,9 +85,11 @@ module RN
           else
             note=File.join(Paths.get_rootPath,book)
           end
-          note=File.join(note,title)
+          note=File.join(note,title + ".rn")
           if File.exist?(note)
             TTY::Editor.open(note)
+          else
+            puts "La nota ingresada no existe"
           end
         end
       end
@@ -112,10 +114,13 @@ module RN
           else
             note=File.join(Paths.get_rootPath,book)
           end
-          old_note=File.join(note,old_title)
-          new_note=File.join(note,new_title)
+          old_note=File.join(note,old_title + ".rn")
+          new_note=File.join(note,new_title + ".rn")
           regex=/[*?!|<>.|\/|\|\\|]+/
-          if !regex.match(new_name)
+          if !regex.match(new_title)
+            puts File.exist?(old_note)
+            puts old_note
+            puts new_note
             if File.exist?(old_note)
               File.rename(old_note,new_note)
             end
@@ -169,20 +174,21 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          if !book.nil? and !book.empty
+          if book.nil?
             note=Paths.get_globalPath
           else
             note=File.join(Paths.get_rootPath,book)
           end
-          note=File.join(note,title)
+          note=File.join(note,title + ".rn")
           if File.exist?(note)
-            if File.empty?(note)
+            if !File.empty?(note)
               table = Terminal::Table.new do |t|
                 t.title = title
-                File.open(path).each do |line|
+                File.open(note).each do |line|
                   t.add_row [line] 
                 end
               end
+              puts table
             else
               puts "La nota esta vacia"
             end

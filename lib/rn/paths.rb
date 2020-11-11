@@ -5,8 +5,8 @@ class Paths
         @@path=File.join(Dir.home, ".my_rns")
         if !Dir.exist?(@@path)
             Dir.mkdir(@@path)
-            path=File.join(@@path, "Cuaderno Global")
-            Dir.mkdir(@path)
+            global_book = File.join(@@path, "Cuaderno Global")
+            Dir.mkdir(global_book)
         end
     end
 

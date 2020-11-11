@@ -49,15 +49,24 @@ module RN
             puts "No se puede eliminar este directorio"
             return
           end
-          directory_path=File.join(Paths.get_rootPath, name)
-          if Dir.exist?(directory_path)
+          if global
+            directory_path=Paths.get_globalPath
             Dir.foreach(directory_path) do |file|
-              if !file == "." || !file == ".."
-                File.delete(file) 
+              if !['.','..'].include?(file)
+                File.delete(File.join(directory_path,file)) 
               end
             end
-            Dir.delete(directory_path)
-          end
+          else
+            directory_path=File.join(Paths.get_rootPath, name)
+            if Dir.exist?(directory_path)
+              Dir.foreach(directory_path) do |file|
+                if !['.','..'].include?(file)
+                  File.delete(File.join(directory_path,file)) 
+                end
+              end
+              Dir.delete(directory_path)
+            end
+          end  
         end
       end
 
@@ -70,10 +79,7 @@ module RN
         def call(*)
           table = Terminal::Table.new :headings => ['Directorios']
           Dir.foreach(Paths.get_rootPath) do |directory|
-            if directory 
-              table.add_row [directory] unless directory.include?(".")
-            end
-            
+            table.add_row [directory] unless directory.include?(".")
           end
           puts table
         end
@@ -95,14 +101,18 @@ module RN
           directory_path=File.join(Paths.get_rootPath, old_name)
           directory_path2=File.join(Paths.get_rootPath, new_name)
           regex=/[*?!|<>.|\/|\|\\|]+/
-          if Dir.exist?(directory_path) 
-            if !regex.match(new_name)
-              File.rename(directory_path,directory_path2)
+          if old_name != "global" or new_name != "global"
+            if Dir.exist?(directory_path) 
+              if !regex.match(new_name)
+                File.rename(directory_path,directory_path2)
+              else
+                puts "El nombre del nuevo libro es incorrecto"
+              end
             else
-              puts "El nombre del nuevo libro es incorrecto"
+                puts "El directorio buscado no existe"
             end
           else
-              puts "El directorio buscado no existe"
+            puts "No se puede renombrar el cuaderno global"
           end
         end
       end
