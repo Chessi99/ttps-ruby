@@ -17,23 +17,7 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          if book.nil? 
-            note=Paths.get_globalPath
-          else
-            note=File.join(Paths.get_rootPath,book)
-          end
-          note=File.join(note,title + ".rn")
-          regex=/[*?!|<>.|\/|\|\\|]+/
-          if !regex.match(title)
-            if !File.exist?(note)
-              File.new(note,"w+")
-              puts "La nota se creo exitosamente"
-            else
-              puts "El nombre de la nota ya existe"
-            end
-          else
-            puts "El nombre de la nota es incorrecto"
-          end
+          Note.create_note(title,book)
         end
       end
 
@@ -51,18 +35,7 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          if book.nil? 
-            note=Paths.get_globalPath
-          else
-            note=File.join(Paths.get_rootPath,book)
-          end
-          note=File.join(note,title +".rn")
-          if File.exist?(note)
-            File.delete(note)
-            puts "La nota se elimino exitosamente"
-          else
-            puts "El nombre de la nota no existe"
-          end
+          Note.delete_note(title,book)
         end
       end
 
@@ -80,17 +53,7 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          if book.nil? 
-            note=Paths.get_globalPath
-          else
-            note=File.join(Paths.get_rootPath,book)
-          end
-          note=File.join(note,title + ".rn")
-          if File.exist?(note)
-            TTY::Editor.open(note)
-          else
-            puts "La nota ingresada no existe"
-          end
+          Note.edit_note(title,book)
         end
       end
 
@@ -109,24 +72,7 @@ module RN
 
         def call(old_title:, new_title:, **options)
           book = options[:book]
-          if book.nil?
-            note=Paths.get_globalPath
-          else
-            note=File.join(Paths.get_rootPath,book)
-          end
-          old_note=File.join(note,old_title + ".rn")
-          new_note=File.join(note,new_title + ".rn")
-          regex=/[*?!|<>.|\/|\|\\|]+/
-          if !regex.match(new_title)
-            puts File.exist?(old_note)
-            puts old_note
-            puts new_note
-            if File.exist?(old_note)
-              File.rename(old_note,new_note)
-            end
-          else
-            puts "El nombre nuevo es incorrecto"
-          end
+          Note.retitle_note(old_title,new_title,book)
         end
       end
       class List < Dry::CLI::Command 
@@ -145,18 +91,7 @@ module RN
         def call(**options)
           book = options[:book]
           global = options[:global]
-          table = Terminal::Table.new :title => "Notas"
-          if global
-            note=Paths.get_globalPath
-            Dir.each_child( note ) {| file | table.add_row [file] }
-          elsif book
-            note=File.join(Paths.get_rootPath,book)
-            Dir.each_child( note ) {| file | table.add_row [file]}
-          else
-            note=File.join(Paths.get_rootPath)
-            Dir.each_child( note ) {| directoryname | Dir.each_child(File.join(note, directoryname)) {| file | table.add_row [file] }  unless directoryname.include? "."}
-          end
-          puts table
+          Note.list_notes(global,book)
         end
       end
 
@@ -174,30 +109,29 @@ module RN
 
         def call(title:, **options)
           book = options[:book]
-          if book.nil?
-            note=Paths.get_globalPath
-          else
-            note=File.join(Paths.get_rootPath,book)
-          end
-          note=File.join(note,title + ".rn")
-          if File.exist?(note)
-            if !File.empty?(note)
-              table = Terminal::Table.new do |t|
-                t.title = title
-                File.open(note).each do |line|
-                  t.add_row [line] 
-                end
-              end
-              puts table
-            else
-              puts "La nota esta vacia"
-            end
-          else
-              puts "La nota no existe"
-          end
+          Note.show_notes(title,book)
         end
       end
 
+      class Export < Dry::CLI::Command
+        desc 'Migrate a note to html format'
+
+        option :title, type: :string
+        option :book, type: :string
+        
+        example [
+          'note                       # Export a note titled "note" to html format',
+          'note --book "My book"      # Export the note titled "note" from the book "My book" to html format'      
+        ]
+
+        def call(**options)
+          book=options[:book]
+          title=options[:title]
+
+          Note.export_note(title,book)
+
+        end
+      end
     end
   end
 end
