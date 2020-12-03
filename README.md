@@ -127,3 +127,9 @@ y mostrar lo que contiene una nota.
 
 Por ultimo use expresiones regulares para poder restringir los nombres de las notas como
 el de los directorios para que no se creen con caracteres especiales.
+
+Realice nuevas modificaciones con respecto al proyecto, las cuales fueron:
+* Se agrego un nuevo modelo de datos para separar la logica propia de las notas o los cuadernos
+de los comandos, se creo una carpeta models con sus respesctivas clases books y notes
+* Por ultimo se agrego un nuevo comando que te permite exportar texto plano a un texto con un 
+formato mas rico, para esto se utilizo la gema redcarpet
