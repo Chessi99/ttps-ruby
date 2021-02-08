@@ -6,7 +6,7 @@ GEM
       concurrent-ruby (~> 1.0)
     pastel (0.8.0)
       tty-color (~> 0.5)
-    redcarpet (3.5.0)
+    redcarpet (3.5.1)
     terminal-table (1.8.0)
       unicode-display_width (~> 1.1, >= 1.1.1)
     tins (1.0.1)
