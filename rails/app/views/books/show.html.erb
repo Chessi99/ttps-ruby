@@ -1,0 +1,13 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Title:</strong>
+  <%= @book.title %>
+</p>
+
+
+<%= link_to 'New Note', new_book_note_path(@book) %>
+<% if !@book.is_global? %>
+  <%= link_to 'Edit', edit_book_path(@book) %> |
+<% end %>
+<%= link_to 'Back', books_path %>

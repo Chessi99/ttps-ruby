@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Title:</strong>
+  <%= @note.title %>
+</p>
+
+<p>
+  <strong>Content:</strong>
+  <%= @note.content %>
+</p>
+<% if !@note.export_content.nil? %>
+<p>
+  <strong>Export content:</strong>
+  <%= @note.export_content.html_safe %>
+</p>
+<% end %>
+
+<%= link_to 'Edit', edit_book_note_path(@note.book_id,@note) %> |
+<%= link_to 'Back', book_notes_path(@note.book_id) %>
