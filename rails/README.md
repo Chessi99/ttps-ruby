@@ -13,7 +13,7 @@
 
 # Base de Datos
 * Se utiliza el motor mysql
-* Configurar el archivo datan¿base.yml con las credenciales del propio mysql
+* Configurar el archivo database.yml con las credenciales del propio mysql
 
 # Modelo
 * La clase User representa a los usuarios de la aplicacion
